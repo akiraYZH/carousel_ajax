@@ -1,0 +1,110 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none; }
+
+.web #nav {
+  display: block;
+  margin: 0 auto;
+  width: 200px;
+  height: 40px;
+  text-align: center;
+  margin-top: 50px;
+  border: none;
+  outline: none; }
+.web .carousel {
+  width: 60%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden; }
+  .web .carousel::before {
+    content: "";
+    display: block;
+    width: 100%;
+    padding-top: 56.25%; }
+  .web .carousel > ul {
+    width: 100%;
+    height: 100%;
+    white-space: nowrap;
+    font-size: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 0.5s; }
+    .web .carousel > ul li {
+      display: inline-block;
+      width: 100%;
+      height: 100%; }
+      .web .carousel > ul li a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative; }
+        .web .carousel > ul li a img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover; }
+        .web .carousel > ul li a .mask {
+          height: 20%;
+          width: 100%;
+          background-color: rgba(0, 0, 0, 0.3);
+          position: absolute;
+          bottom: 0;
+          left: 0; }
+  .web .carousel .left_arrow,
+  .web .carousel .right_arrow {
+    width: 20%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    font-size: 36px;
+    text-align: center;
+    color: #fff;
+    transition: all .3s;
+    cursor: pointer; }
+    .web .carousel .left_arrow arrow,
+    .web .carousel .right_arrow arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); }
+  .web .carousel .left_arrow {
+    left: -100%;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent); }
+  .web .carousel .right_arrow {
+    right: -100%;
+    background-image: linear-gradient(to left, rgba(0, 0, 0, 0.3), transparent); }
+  .web .carousel:hover .left_arrow {
+    left: 0; }
+  .web .carousel:hover .right_arrow {
+    right: 0; }
+  .web .carousel:hover .point_box {
+    bottom: 6%; }
+  .web .carousel .point_box {
+    border-radius: 10px;
+    position: absolute;
+    transition: 0.3s;
+    bottom: -6%;
+    left: 50%;
+    transform: translateX(-50%); }
+    .web .carousel .point_box ul {
+      font-size: 0;
+      white-space: nowrap;
+      padding: 2px 4px; }
+      .web .carousel .point_box ul li {
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        background-color: #fff;
+        margin: 3px 5px;
+        border-radius: 50%;
+        cursor: pointer; }
+        .web .carousel .point_box ul li.active {
+          background-color: #87ceeb; }
+
+/*# sourceMappingURL=index.css.map */
