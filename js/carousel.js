@@ -1,268 +1,210 @@
-carousel();
-
-async function carousel() {
-    let oUl = document.querySelector('.carousel>ul'),
-        oBtn_l = document.querySelector('.left_arrow'),
-        oBtn_r = document.querySelector('.right_arrow'),
-        oSelect = document.querySelector('#nav'),
-        oPoint_box = document.querySelector('.point_box ul'),
-        aPoints = [],
-        now_index = last_index = 0,
-        oCarousel = document.querySelector('.carousel'),
-        timer = null,
-        is_run = false;
-    is_load = false;
-    domain = 'http://jianshe.bluej.cn';
-
-    // let url = 'js/carousel.json';
-
-    let aSelect = await getOptions().then((data) => data);
-    console.log();
-    insertSelect(aSelect);
+function Carousel(id, selected) {
+    this.carousel = document.querySelector(id);
+    this.oUl = this.carousel.querySelector('.carousel>ul');
+    this.oBtn_l = this.carousel.querySelector('.left_arrow');
+    this.oBtn_r = this.carousel.querySelector('.right_arrow');
+    this.oPoint_box = this.carousel.querySelector('.point_box ul');
+    this.aPoints = [];
+    this.now_index = last_index = 0;
+    // this.oCarousel = document.querySelector('.carousel'),
+    this.timer = null;
+    this.is_run = false;
+    this.is_load = false;
+    this.domain = 'http://jianshe.bluej.cn';
 
 
-    init(aSelect[0].id);
-    autoplay();
 
-    oBtn_l.addEventListener('click', () => {
-        if (!is_run && !is_load) {
+
+
+
+
+    this.init(selected);
+    
+
+    this.oBtn_l.addEventListener('click', () => {
+        if (!this.is_run && !this.is_load) {
             console.log('click');
-            
-            --now_index;
-            run();
+
+            --this.now_index;
+            this.run();
 
         }
 
     })
 
-    oBtn_r.addEventListener('click', () => {
-        console.log(is_run, is_load);
-        
-        if (!is_run && !is_load) {
+    this.oBtn_r.addEventListener('click', () => {
+        console.log(this);
+
+        console.log(this.is_run, this.is_load);
+
+        if (!this.is_run && !this.is_load) {
             console.log('click');
-            ++now_index
-            run();
+            ++this.now_index;
+            this.run();
         }
     })
 
     //鼠标移入
-    oCarousel.addEventListener('mouseenter', function () {
+    this.carousel.addEventListener('mouseenter', function () {
+        // console.log(this.timer);
+        
+        clearInterval(this.timer);
 
-        clearInterval(timer);
 
-
-    })
+    }.bind(this))
     //鼠标移出
-    oCarousel.addEventListener('mouseleave', function () {
-        autoplay();
-    })
+    this.carousel.addEventListener('mouseleave', function () {
+        this.autoplay();
+    }.bind(this))
 
-    //通过闭包实现小圆点的切换
-    // for (var i = 0; i < aPoints.length; i++) {
-    //     (function (j) {
-    //         aPoints[j].addEventListener('click', function () {
-    //             if (!is_run) {
-    //                 if (last_index != j) {
-    //                     now_index = j;
-    //                     run();
-    //                 }
-    //             }
 
-    //         })
-    //     })(i)
-    // }
 
     //Click dots event realized by event delegation
-    oPoint_box.addEventListener('click', (e) => {
+    this.oPoint_box.addEventListener('click', function(e){
         let ev = e || window.event;
         let oLi = ev.target || ev.srcElement;
         // console.log(oLi.nodeName);
         if (oLi.nodeName.toLowerCase() == 'li') {
-            if (!is_run && !is_load) {
-                if (last_index != oLi.index) {
-                    now_index = oLi.index;
-                    run();
+            if (!this.is_run && !this.is_load) {
+                if (this.last_index != oLi.index) {
+                    this.now_index = oLi.index;
+                    this.run();
                 }
             }
         }
-    })
-
-    oSelect.addEventListener('change', () => {
-        let selectedIndex = oSelect.options[oSelect.selectedIndex].getAttribute('index');
-        // console.log(selectedIndex);
-        init(selectedIndex);
-
-    })
-
-    async function init(id) {
-        now_index = last_index = 0;
-        is_run = false;
-        is_load = true;
-        oUl.innerHTML = '';
-        oPoint_box.innerHTML = '';
-        let aImgs = await getImgs(id).then((data) => data, (code) => alert(code));
-        console.log(aImgs);
-        aImgs.data.forEach((val) => {
-            // console.log(val.ch_img_url);
-
-            oUl.innerHTML += `
-                <li>
-                    <a href="">
-                        <img src="${domain+val.ch_img_url}" alt="">
-                        <div class="mask"></div>
-                    </a>
-                </li>
-                `;
-            oPoint_box.innerHTML += `<li></li>`
-        })
-        aPoints = document.querySelectorAll('.point_box li');
-        aPoints.forEach((obj, index) => obj.index = index);
-        oUl.insertBefore(oUl.lastElementChild.cloneNode(true), oUl.children[0]);
-        oUl.appendChild(oUl.children[1].cloneNode(true));
-
-        oUl.style.transition = 'none';
-        oUl.style.transform = `translateX(-${calcIndex(now_index)*100}%)`;
-        getComputedStyle(oUl, false).transition;
-        oUl.style.transition = '';
-        aPoints[0].classList.add('active');   
-        is_load = false;
-    }
-
-    function calcIndex(index) {
-        return index + 1;
-    }
-
-    // switch the img position when the animation ended
-    function restore() {
-
-        oUl.style.transition = 'none';
-
-        if (now_index < 0) {
-            now_index = aPoints.length - 1;
-        } else if (now_index == aPoints.length) {
-            now_index = 0;
-
-        }
-        last_index = now_index;
-
-        oUl.style.transform = `translateX(-${calcIndex(now_index)*100}%)`;
-
-        getComputedStyle(oUl).transition;
-        oUl.style.transition = '';
-        is_run = false;
-        oUl.removeEventListener('transitionend', restore)
-
-    }
-
-    //when switch the img
-    function run() {
-        console.log('123');
-
-        is_run = true;
-        // oUl.style.transition='';
-        oUl.style.transform = `translateX(-${calcIndex(now_index)*100}%)`;
-        (now_index < 0 || now_index == aPoints.length) && (oUl.addEventListener('transitionend', restore));
-        if (now_index < 0) {
-            now_index = aPoints.length - 1;
-        } else if (now_index == aPoints.length) {
-            now_index = 0;
-        }
-        aPoints[last_index].classList.remove('active');
-        aPoints[now_index].classList.add('active');
-        last_index = now_index;
-
-    }
+    }.bind(this));
 
 
 
 
-    //自动轮播
-    function autoplay() {
 
-        timer = setInterval(function () {
-            if (!is_run && !is_load) {
-                // (++now_index == aPoints.length) && (now_index = 0);
-                ++now_index;
-                run();
-            }
-        }, 1500);
 
-    }
 
-    oUl.addEventListener('transitionend', function () {
-        is_run = false;
-        // alert();
-    })
+
+    this.oUl.addEventListener('transitionend', function () {
+        this.is_run = false;
+        // log
+        // console.log(this.is_run);
+
+    }.bind(this))
     // 1.自动轮播(鼠标放上去停)
     // 2.小圆点要跟着轮播图变化而变化(acitive切换)
     // 3.点击小圆点轮播图要切换到对应的图片
     // 4.提高要求, 动画结束后才允许用户点击下一次 事件移出与绑定
 
-    function insertSelect(data) {
-        // console.log(data);
-        data.forEach(function (val, index) {
 
-
-
-            let oOption = document.createElement('option');
-            oOption.setAttribute('index', index + 1);
-            oOption.innerHTML = val.name;
-            oSelect.appendChild(oOption);
-        })
-        // console.log(oSelect.children);
-
-    }
-
-
-    function getOptions() {
-        return new Promise(function (resolve, failFn) {
-            _ajax('js/position_list.json', '', 'GET', resolve, failFn);
-        });
-    }
-
-    function getImgs(id) {
-        return new Promise(function (resolve, failFn) {
-            _ajax('http://jianshe.bluej.cn/api/index/get_carousel?position_id=' + id, '', 'GET', resolve, failFn);
-        });
-    }
 }
 
 
-function _ajax(_url, arg = '', method = 'GET', succFn, failFn) {
-    // var domain = 'http://jianshe.bluej.cn';
-    var req_url = '';
-    var xhr = null;
-
-    method == 'GET' ? req_url = _url + '?' + arg : req_url = _url;
-    window.XMLHttpRequest ? xhr = new XMLHttpRequest : xhr = new ActiveXObject('Microsoft.XMLHTTP');
-
-    xhr.open(method, req_url);
-    if (method == 'GET') {
-        xhr.send();
-    } else {
-        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-        xhr.send(arg);
-    }
-    xhr.addEventListener('readystatechange', function () {
-        if (xhr.readyState == 4) {
-            // if (xhr.status == 200) {
-            //     return succFn(JSON.parse(xhr.responseText));
-            // } else {
-            //     return failFn(xhr.status);
-            // }
-            xhr.status == 200?succFn(JSON.parse(xhr.responseText)):failFn(xhr.status);
+//自动轮播
+Carousel.prototype.autoplay = function (){
+    
+    
+    this.timer = setInterval(function () {
+        // console.log(this);
+        if (!this.is_run && !this.is_load) {
+            // (++now_index == aPoints.length) && (now_index = 0);
+            ++this.now_index;
+            this.run();
         }
+    }.bind(this), 1500);
+
+}
+
+
+Carousel.prototype.calcIndex = function (index) {
+    return index + 1;
+}
+
+Carousel.prototype.init = async function (id) {
+    
+    
+    this.now_index = this.last_index = 0;
+    console.log(this.timer);
+    
+    clearInterval(this.timer);
+    this.autoplay();
+    // console.log(this);
+    this.is_run = false;
+    this.is_load = true;
+    this.oUl.innerHTML = '';
+    this.oPoint_box.innerHTML = '';
+    // console.log('123');
+
+    let aImgs = await this.getImgs(id).then((data) => data, (code) => alert(code));
+    console.log(aImgs);
+    aImgs.data.forEach((val) => {
+        // console.log(val.ch_img_url);
+
+        this.oUl.innerHTML += `
+            <li>
+                <a href="">
+                    <img src="${this.domain+val.ch_img_url}" alt="">
+                    <div class="mask"></div>
+                </a>
+            </li>
+            `;
+        this.oPoint_box.innerHTML += `<li></li>`
+    })
+    this.aPoints = document.querySelectorAll('.point_box li');
+    this.aPoints.forEach((obj, index) => obj.index = index);
+    this.oUl.insertBefore(this.oUl.lastElementChild.cloneNode(true), this.oUl.children[0]);
+    this.oUl.appendChild(this.oUl.children[1].cloneNode(true));
+
+    this.oUl.style.transition = 'none';
+    this.oUl.style.transform = `translateX(-${this.calcIndex(this.now_index)*100}%)`;
+    getComputedStyle(this.oUl, false).transition;
+    this.oUl.style.transition = '';
+    this.aPoints[0].classList.add('active');
+    this.is_load = false;
+}
+
+//when switch the img
+Carousel.prototype.run = function () {
+
+
+    this.is_run = true;
+    // oUl.style.transition='';
+    this.oUl.style.transform = `translateX(-${this.calcIndex(this.now_index)*100}%)`;
+    (this.now_index < 0 || this.now_index == this.aPoints.length) && (this.oUl.addEventListener('transitionend', this.restore.bind(this)));
+    if (this.now_index < 0) {
+        this.now_index = this.aPoints.length - 1;
+    } else if (this.now_index == this.aPoints.length) {
+        this.now_index = 0;
+    }
+    this.aPoints[this.last_index].classList.remove('active');
+    this.aPoints[this.now_index].classList.add('active');
+    this.last_index = this.now_index;
+
+}
+
+
+// switch the img position when the animation ended
+Carousel.prototype.restore = function () {
+
+    // console.log(this);
+
+    this.oUl.style.transition = 'none';
+
+    if (this.now_index < 0) {
+        this.now_index = this.aPoints.length - 1;
+    } else if (this.now_index == this.aPoints.length) {
+        this.now_index = 0;
+
+    }
+    this.last_index = this.now_index;
+
+    this.oUl.style.transform = `translateX(-${this.calcIndex(this.now_index)*100}%)`;
+
+    getComputedStyle(this.oUl).transition;
+    this.oUl.style.transition = '';
+    this.is_run = false;
+    this.oUl.removeEventListener('transitionend', this.restore)
+
+};
+
+Carousel.prototype.getImgs = function (id) {
+    return new Promise(function (resolve, failFn) {
+        _ajax('http://jianshe.bluej.cn/api/index/get_carousel?position_id=' + id, '', 'GET', resolve, failFn);
     });
 }
-
-// class Person{
-//     constructor(){
-//         // alert(this);
-//     }
-
-//     fn(){
-//         console.log(this);
-//     }
-    
-// }
-// new Person().fn();
